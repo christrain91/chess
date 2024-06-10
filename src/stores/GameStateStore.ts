@@ -3,9 +3,10 @@ import { GameState, Square, Piece, Color, PieceType, Move } from '../types'
 import { calculateLegalPawnMoves } from '../util/moves/pawn'
 
 interface GameStateStore extends GameState {
-  setActivePiece: (piece: Piece) => void
+  setActivePiece: (piece: Piece | null) => void
   getPieceForSquare: (square: Square) => Piece | undefined
   legalMovesForSelectedPiece: Move[]
+  makeMove: (move: Move) => void
 }
 
 const initialGameState: GameState = {
@@ -184,7 +185,7 @@ export const useGameStateStore = create<GameStateStore>((set, get) => ({
   getPieceForSquare: (square: Square): Piece | undefined => {
     return get().pieces.find(piece => piece.square.rank === square.rank && piece.square.file === square.file)
   },
-  setActivePiece: (piece: Piece | undefined) => {
+  setActivePiece: (piece: Piece | null) => {
     console.log('setting active piece', piece)
     const legalMoves = getLegalMovesForPiece(piece, get().pieces)
     console.log('legal moves', legalMoves)
@@ -192,11 +193,30 @@ export const useGameStateStore = create<GameStateStore>((set, get) => ({
       activePiece: piece || null,
       legalMovesForSelectedPiece: legalMoves
     })
+  },
+  makeMove: (move: Move) => {
+    console.log('making move', move)
+    const pieces = get().pieces.map((piece) => {
+      if (piece.square.rank === move.from.rank && piece.square.file === move.from.file) {
+        return {
+          ...piece,
+          square: move.to
+        }
+      }
+      return piece
+    })
+
+    set({
+      pieces,
+      moves: [...get().moves, move],
+      activePiece: null,
+      legalMovesForSelectedPiece: []
+    })
   }
 }))
 
 
-function getLegalMovesForPiece(piece: Piece | undefined, pieces: Piece[]): Move[] {
+function getLegalMovesForPiece(piece: Piece | null, pieces: Piece[]): Move[] {
       if (!piece) {
       return []
     }

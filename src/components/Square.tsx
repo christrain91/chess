@@ -1,4 +1,4 @@
-import { useGameStateStore } from '../stores/GameStateStore'
+import { useGameStateStore } from '../stores/GameStateStore';
 import type { Rank, File } from '../types'
 import { Piece } from './Piece'
 
@@ -14,17 +14,26 @@ export function Square(props: SquareProps) {
   const showFile = props.rank === 1
   
   const piece = useGameStateStore((state) => state.getPieceForSquare({ rank: props.rank, file: props.file }))
+  const selectedPiece = useGameStateStore((state) => state.activePiece)
+  const legalMovesForSelectedPiece = useGameStateStore((state) => state.legalMovesForSelectedPiece)
   const setActivePiece = useGameStateStore((state) => state.setActivePiece)
+  const makeMove = useGameStateStore((state) => state.makeMove)
+
+  const matchingLegalMove = legalMovesForSelectedPiece.find((move) => move.to.rank === props.rank && move.to.file === props.file)
+
+
+  const isSelected = selectedPiece && selectedPiece.square.rank === props.rank && selectedPiece.square.file === props.file
   
-  return <div className={`${props.black ? 'bg-sky-700' : 'bg-sky-100'} w-full h-full aspect-square pt-[1px] pl-[1px] pr-[2px]`}>
+  return <div className={`${isSelected ? 'bg-yellow-500' : props.black ? 'bg-sky-700' : 'bg-sky-100'} w-full h-full aspect-square pt-[1px] pl-[1px] pr-[2px]`}>
       <div className={`relative w-full h-full text-xs md:text-sm lg:text-lg xl:text-2xl font-semibold ${props.black ? 'text-sky-100' : 'text-sky-700'}`}>
       {showRank && <div className="absolute top-0 left-0 ">{props.rank}</div>}
       {showFile && <div className="absolute bottom-0 right-0 ">{props.file}</div>}
       <div className="absolute w-full h-full items-center justify-center flex p-1">
-        {piece && <Piece onClick={() => setActivePiece(piece)} type={piece.type} rank={props.rank} file={props.file} black={piece.color === 'black'}/>}
-
-
+        {piece && <Piece onClick={() => isSelected ? setActivePiece(null) : setActivePiece(piece)} type={piece.type} rank={props.rank} file={props.file} black={piece.color === 'black'}/>}
       </div>
+      {matchingLegalMove && <div onClick={() => makeMove(matchingLegalMove)} className="cursor-pointer absolute w-full h-full flex items-center justify-center">
+        <div className={`rounded-full aspect-square w-1/4 ${props.black ? 'bg-slate-200' : 'bg-slate-400'} bg-slate-500 bg-opacity-50`}></div>
+        </div>}
       </div>
   </div>
 }
