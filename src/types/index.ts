@@ -26,6 +26,7 @@ export interface Move {
   to: Square
   piece: Piece
   capture?: Piece
+  extraMove?: Move // Rook move when castling
 }
 
 export interface Square {

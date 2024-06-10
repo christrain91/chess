@@ -1,11 +1,7 @@
 import { create } from 'zustand'
-import { GameState, Square, Piece, Color, PieceType, Move } from '../types'
-import { calculateLegalPawnMoves } from '../util/moves/pieces/pawn'
-import { calculateLegalBishopMoves } from '../util/moves/pieces/bishop'
-import { calculateLegalKingMoves } from '../util/moves/pieces/king'
-import { calculateLegalKnightMoves } from '../util/moves/pieces/knight'
-import { calculateLegalQueenMoves } from '../util/moves/pieces/queen'
-import { calculateLegalRookMoves } from '../util/moves/pieces/rook'
+import { File,GameState, Square, Piece, Color, PieceType, Move } from '../types'
+import { getLegalMovesForPiece } from '../util/moves/pieces/getLegalMovesForPiece'
+import { applyMoveToPieces } from '../util/moves/pieces/applyMoveToPieces';
 
 interface GameStateStore extends GameState {
   setActivePiece: (piece: Piece | null) => void
@@ -23,162 +19,162 @@ const initialGameState: GameState = {
   pieces:  [
     {
       type: PieceType.ROOK,
-      square: { rank: 1, file: 'a' },
+      square: { rank: 1, file: File.A },
       color: Color.WHITE
     },
     {
       type: PieceType.KNIGHT,
-      square: { rank: 1, file: 'b' },
+      square: { rank: 1, file: File.B },
       color: Color.WHITE
     },
     {
       type: PieceType.BISHOP,
-      square: { rank: 1, file: 'c' },
+      square: { rank: 1, file: File.C },
       color: Color.WHITE
     },
     {
       type: PieceType.QUEEN,
-      square: { rank: 1, file: 'd' },
+      square: { rank: 1, file: File.D },
       color: Color.WHITE
     },
     {
       type: PieceType.KING,
-      square: { rank: 1, file: 'e' },
+      square: { rank: 1, file: File.E },
       color: Color.WHITE
     },
     {
       type: PieceType.BISHOP,
-      square: { rank: 1, file: 'f' },
+      square: { rank: 1, file: File.F },
       color: Color.WHITE
     },
     {
       type: PieceType.KNIGHT,
-      square: { rank: 1, file: 'g' },
+      square: { rank: 1, file: File.G },
       color: Color.WHITE
     },
     {
       type: PieceType.ROOK,
-      square: { rank: 1, file: 'h' },
+      square: { rank: 1, file: File.H },
       color: Color.WHITE
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 2, file: 'a' },
+      square: { rank: 2, file: File.A },
       color: Color.WHITE
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 2, file: 'b' },
+      square: { rank: 2, file: File.B },
       color: Color.WHITE
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 2, file: 'c' },
+      square: { rank: 2, file: File.C },
       color: Color.WHITE
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 2, file: 'd' },
+      square: { rank: 2, file: File.D },
       color: Color.WHITE
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 2, file: 'e' },
+      square: { rank: 2, file: File.E },
       color: Color.WHITE
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 2, file: 'f' },
+      square: { rank: 2, file: File.F },
       color: Color.WHITE
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 2, file: 'g' },
+      square: { rank: 2, file: File.G },
       color: Color.WHITE
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 2, file: 'h' },
+      square: { rank: 2, file: File.H },
       color: Color.WHITE
     },
     {
       type: PieceType.ROOK,
-      square: { rank: 8, file: 'a' },
+      square: { rank: 8, file: File.A },
       color: Color.BLACK
     },
     {
       type: PieceType.KNIGHT,
-      square: { rank: 8, file: 'b' },
+      square: { rank: 8, file: File.B },
       color: Color.BLACK
     },
     {
       type: PieceType.BISHOP,
-      square: { rank: 8, file: 'c' },
+      square: { rank: 8, file: File.C },
       color: Color.BLACK
     },
     {
       type: PieceType.QUEEN,
-      square: { rank: 8, file: 'd' },
+      square: { rank: 8, file: File.D },
       color: Color.BLACK
     },
     {
       type: PieceType.KING,
-      square: { rank: 8, file: 'e' },
+      square: { rank: 8, file: File.E },
       color: Color.BLACK
     },
     {
       type: PieceType.BISHOP,
-      square: { rank: 8, file: 'f' },
+      square: { rank: 8, file: File.F },
       color: Color.BLACK
     },
     {
       type: PieceType.KNIGHT,
-      square: { rank: 8, file: 'g' },
+      square: { rank: 8, file: File.G },
       color: Color.BLACK
     },
     {
       type: PieceType.ROOK,
-      square: { rank: 8, file: 'h' },
+      square: { rank: 8, file: File.H },
       color: Color.BLACK
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 7, file: 'a' },
+      square: { rank: 7, file: File.A },
       color: Color.BLACK
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 7, file: 'b' },
+      square: { rank: 7, file: File.B },
       color: Color.BLACK
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 7, file: 'c' },
+      square: { rank: 7, file: File.C },
       color: Color.BLACK
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 7, file: 'd' },
+      square: { rank: 7, file: File.D },
       color: Color.BLACK
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 7, file: 'e' },
+      square: { rank: 7, file: File.E },
       color: Color.BLACK
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 7, file: 'f' },
+      square: { rank: 7, file: File.F },
       color: Color.BLACK
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 7, file: 'g' },
+      square: { rank: 7, file: File.G },
       color: Color.BLACK
     },
     {
       type: PieceType.PAWN,
-      square: { rank: 7, file: 'h' },
+      square: { rank: 7, file: File.H },
       color: Color.BLACK
     }
   ]
@@ -192,57 +188,28 @@ export const useGameStateStore = create<GameStateStore>((set, get) => ({
     return get().pieces.find(piece => piece.square.rank === square.rank && piece.square.file === square.file)
   },
   setActivePiece: (piece: Piece | null) => {
+    const isPiecesTurn = piece && piece.color === get().turn
+
     const { pieces, moves } = get()
-    const legalMoves = getLegalMovesForPiece(piece, pieces, moves)
+    const legalMoves = isPiecesTurn ? getLegalMovesForPiece(piece, pieces, moves, true) : []
     set({
-      activePiece: piece || null,
+      activePiece: isPiecesTurn ? piece || null : null,
       legalMovesForSelectedPiece: legalMoves
     })
   },
   makeMove: (move: Move) => {
-    const pieces = get().pieces.map((piece) => {
-      if (piece.square.rank === move.to.rank && piece.square.file === move.to.file) {
-        return null
-      }
-      if (piece.square.rank === move.from.rank && piece.square.file === move.from.file) {
-        return {
-          ...piece,
-          square: move.to
-        }
-      }
-      return piece
-    }).filter(Boolean) as Piece[]
+    const pieces = applyMoveToPieces(get().pieces, move)
 
     set({
       capturedPieces: move.capture ? [...get().capturedPieces, move.capture] : get().capturedPieces,
       pieces,
-      moves: [...get().moves, move],
+      moves: get().moves.concat([move]),
       activePiece: null,
+      turn: get().turn === Color.WHITE ? Color.BLACK : Color.WHITE,
       legalMovesForSelectedPiece: []
     })
   }
 }))
 
 
-function getLegalMovesForPiece(piece: Piece | null, pieces: Piece[], moveHistory: Move[]): Move[] {
-    if (!piece) {
-      return []
-    }
-    switch (piece.type) {
-      case PieceType.PAWN:
-        return calculateLegalPawnMoves(piece, pieces, moveHistory[moveHistory.length - 1])
-      default:
-        return []
-      case PieceType.ROOK:
-        return calculateLegalRookMoves(piece, pieces)
-      case PieceType.KNIGHT:
-        return calculateLegalKnightMoves(piece, pieces)
-      case PieceType.BISHOP:
-        return calculateLegalBishopMoves(piece, pieces)
-      case PieceType.QUEEN:
-        return calculateLegalQueenMoves(piece, pieces)
-      case PieceType.KING:
-        return calculateLegalKingMoves(piece, pieces, moveHistory)
-    }
-  }
 
