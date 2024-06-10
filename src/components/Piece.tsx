@@ -1,5 +1,3 @@
-import { useGameStateStore } from '../stores/GameStateStore'
-
 interface PieceProps {
   onClick?: () => void
   type: 'king' | 'queen' | 'rook' | 'bishop' | 'knight' | 'pawn'
@@ -9,7 +7,7 @@ interface PieceProps {
 }
 
 export function Piece(props: PieceProps) {
-  return <div onClick={props.onClick} className="cursor-pointer w-full h-full aspect-square">
+  return <div onClick={props.onClick} className="z-10 cursor-pointer w-full h-full aspect-square">
     <div className="relative w-full h-full">
       <div className="absolute w-full h-full items-center justify-center flex">
         <img src={getIconUrl(props.type, props.black)} alt={props.type} />

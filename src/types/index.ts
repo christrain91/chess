@@ -15,6 +15,7 @@ export enum PieceType {
 export interface GameState {
   turn: Color
   pieces: Piece[]
+  capturedPieces: Piece[]
   inCheck: boolean
   moves: Move[]
   activePiece: Piece | null
@@ -38,5 +39,25 @@ export interface Piece {
   color: Color
 }
 
-export type Rank = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
-export type File = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h'
+
+export enum File {
+  A = 'a',
+  B = 'b',
+  C = 'c',
+  D = 'd',
+  E = 'e',
+  F = 'f',
+  G = 'g',
+  H = 'h'
+}
+
+export enum Rank {
+  ONE = 1,
+  TWO = 2,
+  THREE = 3,
+  FOUR = 4,
+  FIVE = 5,
+  SIX = 6,
+  SEVEN = 7,
+  EIGHT = 8
+}
