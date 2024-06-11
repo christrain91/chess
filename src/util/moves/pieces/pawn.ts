@@ -1,4 +1,4 @@
-import type { Move, Piece, Rank, Square } from '../../../types';
+import { PieceType, type Move, type Piece, type Rank, type Square, type File } from '../../../types';
 import { getNextFile, getPreviousFile } from '../../file';
 
 export function calculateLegalPawnMoves(pawn: Piece, pieces: Piece[], lastMove: Move | null): Move[] {
@@ -39,7 +39,7 @@ function isPieceAtPosition(pieces: Piece[], square: Square) {
   return pieces.find((piece) => piece.square.rank === square.rank && piece.square.file === square.file)
 }
 
-function calculateCaptures(pawn: Piece, pieces: Piece[], _lastMove: Move | null) {
+function calculateCaptures(pawn: Piece, pieces: Piece[], lastMove: Move | null) {
   const captures: Move[] = [] 
 
   const direction = pawn.color === 'white' ? 1 : -1
@@ -67,8 +67,34 @@ function calculateCaptures(pawn: Piece, pieces: Piece[], _lastMove: Move | null)
     })
   }
 
-  // TODO: En passant
+  if (lastMove) {
+
+    const enpassantCapture = getEnPassantCapture(pawn, [previousFile, nextFile].filter(Boolean) as File[], lastMove)
+
+    if (enpassantCapture) {
+      captures.push(enpassantCapture)
+    }
+  }
 
   return captures
+}
 
+function getEnPassantCapture (pawn: Piece, files: File[], lastMove: Move ): Move | null {
+  if (lastMove.piece.color === pawn.color || !files.includes(lastMove.piece.square.file)) return null
+
+  const wasLastMoveAPawnDoubleMove = lastMove.piece.type === PieceType.PAWN && Math.abs(lastMove.from.rank - lastMove.to.rank) === 2
+
+  if (!wasLastMoveAPawnDoubleMove) return null
+
+
+  const allowCapture = lastMove.to.rank === pawn.square.rank
+
+  if (!allowCapture) return null
+
+  return {
+    from: pawn.square,
+    to: { rank: pawn.square.rank + (pawn.color === 'white' ? 1 : -1) as Rank, file: lastMove.piece.square.file },
+    piece: pawn,
+    capture: { ...lastMove.piece, square: lastMove.to }
+  }
 }

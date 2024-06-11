@@ -2,7 +2,7 @@ import { Move, Piece } from '../../../types'
 
 export function applyMoveToPieces(pieces: Piece[], move: Move): Piece[] {
   return pieces.map((piece) => {
-    if (piece.square.rank === move.to.rank && piece.square.file === move.to.file) {
+    if (move.capture && piece.square.rank === move.capture.square.rank && piece.square.file === move.capture.square.file) {
       return null
     }
     if (piece.square.rank === move.from.rank && piece.square.file === move.from.file) {

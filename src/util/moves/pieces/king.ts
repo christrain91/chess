@@ -48,7 +48,7 @@ function canCastleKingside(king: Piece, pieces: Piece[], moveHistory: Move[]): b
     return false
   }
 
-  return allowCastle(king, [File.F, File.G], pieces, moveHistory)
+  return allowCastle(king, [File.F, File.G], [File.F, File.G], pieces, moveHistory)
 
 }
 
@@ -63,19 +63,19 @@ function canCastleQueenside(king: Piece, pieces: Piece[], moveHistory: Move[]): 
     return false
   }
 
-  return allowCastle(king, [File.F, File.G], pieces, moveHistory)
+  return allowCastle(king, [File.C, File.D], [File.B, File.C, File.D], pieces, moveHistory)
 
 }
 
-function allowCastle(king: Piece, castlingFiles: File[], pieces: Piece[], moveHistory: Move[]): boolean {
-  const hasPiecesBetween = pieces.some(piece => (castlingFiles.includes(piece.square.file)) && piece.square.rank === king.square.rank)
+function allowCastle(king: Piece, kingCastlingFiles: File[], allCastlingFiles: File[], pieces: Piece[], moveHistory: Move[]): boolean {
+  const hasPiecesBetween = pieces.some(piece => (allCastlingFiles.includes(piece.square.file)) && piece.square.rank === king.square.rank)
 
   if (hasPiecesBetween) return false
   const enemyPieces = pieces.filter(piece => piece.color !== king.color)
   
   return !enemyPieces.some(enemyPiece => {
       const moves = getLegalMovesForPiece(enemyPiece, pieces, moveHistory, false)
-      return moves.some(move => (castlingFiles.includes(move.to.file) || move.to.file === king.square.file) && move.to.rank === king.square.rank)
+      return moves.some(move => (kingCastlingFiles.includes(move.to.file) || move.to.file === king.square.file) && move.to.rank === king.square.rank)
   })
 
 }
