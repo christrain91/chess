@@ -14,6 +14,7 @@ interface GameStateStore extends GameState {
   getPieceForSquare: (square: Square) => Piece | undefined
   legalMovesForSelectedPiece: MoveWithoutNotation[]
   makeMove: (move: MoveWithoutNotation) => void
+  pendingPromotionMove?: MoveWithoutNotation | null
 }
 
 
@@ -25,20 +26,14 @@ export const useGameStateStore = create<GameStateStore>((set, get) => ({
     return get().pieces.find(piece => piece.square.rank === square.rank && piece.square.file === square.file)
   },
   promotePiece: (piece: Piece, promotionType: PromotionPieceType) => {
-    if (piece.type !== PieceType.PAWN) return
+    const { pendingPromotionMove, pieces: piecesBefore, moves} = get()
+    if (piece.type !== PieceType.PAWN || !pendingPromotionMove) return
     const promotionMove: MoveWithoutNotation = {
-        from: piece.square,
-        to: piece.square,
-        piece,
+        ...pendingPromotionMove,
         promotion: promotionType
     }
-    
-    const piecesBefore = get().pieces
-    set({
-      activePiece: null,
-      turn: get().turn === Color.WHITE ? Color.BLACK : Color.WHITE,
-      moves: get().moves.concat([{...promotionMove, notation: calculateMoveNotation(promotionMove, get().pieces, get().moves)}]),
-      pieces: piecesBefore.map(p => {
+
+    const updatedPieces = piecesBefore.map(p => {
         if (p.square.file === piece.square.file && p.square.rank === piece.square.rank && p.type === PieceType.PAWN) {
           return {
             ...p,
@@ -48,6 +43,12 @@ export const useGameStateStore = create<GameStateStore>((set, get) => ({
         }
         return p
       })
+    
+    set({
+      activePiece: null,
+      turn: get().turn === Color.WHITE ? Color.BLACK : Color.WHITE,
+      moves: get().moves.concat([{...promotionMove, notation: calculateMoveNotation(promotionMove, piecesBefore, moves.concat([promotionMove as Move]))}]),
+      pieces: updatedPieces
     })
   },
   setActivePiece: (piece: Piece | null) => {
@@ -61,25 +62,25 @@ export const useGameStateStore = create<GameStateStore>((set, get) => ({
     })
   },
   makeMove: (move: MoveWithoutNotation) => {
-    if (get().result) return
+    const { result: gameResult, pieces: piecesBeforeMove, moves, turn: currentTurn} = get()
+    if (gameResult) return
 
-    const piecesBeforeMove = get().pieces
     const piecesAfterMove = applyMoveToPieces(piecesBeforeMove, move)
-    const promoting = piecesAfterMove.find(piece => piece.promoting)
-    const moveHistory = get().moves.concat([move as Move])
-    const currentTurn = get().turn 
+    const isPromoting = !!piecesAfterMove.find(piece => piece.promoting) && !move.promotion
+    const moveHistory = moves.concat([move as Move])
     const nextTurn = currentTurn === Color.WHITE ? Color.BLACK : Color.WHITE
-    const moves = get().moves
+    
 
     const result = checkIfGameFinished(piecesAfterMove, nextTurn, moveHistory)
-    const notation = calculateMoveNotation(move, piecesBeforeMove, moves)
+    const notation = calculateMoveNotation(move, piecesBeforeMove, moveHistory)
 
     set({
       capturedPieces: move.capture ? [...get().capturedPieces, move.capture] : get().capturedPieces,
       pieces: piecesAfterMove,
-      moves: promoting ? moves : moves.concat([{ ...move, notation }]),
+      pendingPromotionMove: isPromoting ? move : null,
+      moves: isPromoting ? moves : moves.concat([{ ...move, notation }]),
       activePiece: null,
-      turn: promoting ? currentTurn : nextTurn,
+      turn: isPromoting ? currentTurn : nextTurn,
       result,
       legalMovesForSelectedPiece: []
     })

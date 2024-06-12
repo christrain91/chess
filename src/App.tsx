@@ -17,7 +17,8 @@ function App() {
       </div>
       <div className="min-w-[500px] p-4">
         <div className="text-center font-semibold text-xl">
-          {turn === Color.WHITE ? 'White' : 'Black'} to play
+          {result ? `${result.winner?.toUpperCase()} WINS` : `${turn === Color.WHITE ? 'White' : 'Black'} to play`
+          }
         </div>
         {/* Result: {JSON.stringify(result, null, 2)} */}
         <MoveHistory />

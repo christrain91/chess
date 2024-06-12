@@ -23,7 +23,7 @@ export function PromotionSelector({ onSelect, color, open }: PromotionSelectorPr
       <PopoverContent className="w-[400px]">
         <div className="flex gap-2 w-full justify-stretch items-center">
           {promotionPieces.map((pieceType) => (
-            <div className="flex-1 hover:bg-slate-100 rounded aspect-square">
+            <div key={pieceType} className="flex-1 hover:bg-slate-100 rounded aspect-square">
               <Piece onClick={() => onSelect(pieceType)} type={pieceType} rank={Rank.ONE} file={File.A} black={color === Color.BLACK} />
             </div>
 
