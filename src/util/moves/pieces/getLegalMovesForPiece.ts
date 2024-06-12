@@ -1,4 +1,4 @@
-import { Piece, Move, PieceType } from '../../../types'
+import { Piece, Move, MoveWithoutNotation, PieceType } from '../../../types'
 import { isInCheck } from '../../check'
 import { applyMoveToPieces } from './applyMoveToPieces'
 import { calculateLegalBishopMoves } from './bishop'
@@ -8,12 +8,12 @@ import { calculateLegalPawnMoves } from './pawn'
 import { calculateLegalQueenMoves } from './queen'
 import { calculateLegalRookMoves } from './rook'
 
-export function getLegalMovesForPiece(piece: Piece | null, pieces: Piece[], moveHistory: Move[], filterChecks: boolean): Move[] {
+export function getLegalMovesForPiece(piece: Piece | null, pieces: Piece[], moveHistory: Move[], filterChecks: boolean): MoveWithoutNotation[] {
   if (!piece) {
     return []
   }
 
-  let moves: Move[] = []
+  let moves: MoveWithoutNotation[] = []
 
   switch (piece.type) {
     case PieceType.PAWN:
@@ -39,7 +39,7 @@ export function getLegalMovesForPiece(piece: Piece | null, pieces: Piece[], move
   if (filterChecks) {
     moves = moves.filter(move => {
       const piecesAfterMove = applyMoveToPieces(pieces, move)
-      return !isInCheck(piecesAfterMove, piece.color, moveHistory)
+      return !isInCheck(piecesAfterMove, piece.color)
     })
   }
 

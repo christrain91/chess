@@ -1,10 +1,10 @@
-import { Piece, Move, File, PieceType, Color } from '../../../types';
+import { Piece, MoveWithoutNotation, Move, File, PieceType, Color, CastleType } from '../../../types';
 import { calculateLegalDiagonalMoves } from '../diagonal';
 import { calculateLegalStraightMoves } from '../straight';
 import { getLegalMovesForPiece } from './getLegalMovesForPiece';
 
-export function calculateLegalKingMoves(king: Piece, pieces: Piece[], moveHistory: Move[]): Move[] {
-  const moves: Move[] = [...calculateLegalDiagonalMoves(king, pieces, 1),
+export function calculateLegalKingMoves(king: Piece, pieces: Piece[], moveHistory: Move[]): MoveWithoutNotation[] {
+  const moves: MoveWithoutNotation[] = [...calculateLegalDiagonalMoves(king, pieces, 1),
     ...calculateLegalStraightMoves(king, pieces, 1)
   ]
 
@@ -12,6 +12,7 @@ export function calculateLegalKingMoves(king: Piece, pieces: Piece[], moveHistor
     moves.push({
       piece: king,
       from: king.square,
+      castle: CastleType.QUEENSIDE,
       to: { file: File.C, rank: king.square.rank },
       extraMove: {
         piece: pieces.find(piece => piece.type === PieceType.ROOK && piece.color === king.color && piece.square.file === File.A && piece.square.rank === king.square.rank) as Piece,
@@ -25,6 +26,7 @@ export function calculateLegalKingMoves(king: Piece, pieces: Piece[], moveHistor
     moves.push({
       piece: king,
       from: king.square,
+      castle: CastleType.KINGSIDE,
       to: { file: File.G, rank: king.square.rank },
       extraMove: {
         piece: pieces.find(piece => piece.type === PieceType.ROOK && piece.color === king.color && piece.square.file === File.H && piece.square.rank === king.square.rank) as Piece,
@@ -71,7 +73,7 @@ function allowCastle(king: Piece, kingCastlingFiles: File[], allCastlingFiles: F
   const hasPiecesBetween = pieces.some(piece => (allCastlingFiles.includes(piece.square.file)) && piece.square.rank === king.square.rank)
 
   if (hasPiecesBetween) return false
-  const enemyPieces = pieces.filter(piece => piece.color !== king.color)
+  const enemyPieces = pieces.filter(piece => piece.color !== king.color && piece.type !== PieceType.KING)
   
   return !enemyPieces.some(enemyPiece => {
       const moves = getLegalMovesForPiece(enemyPiece, pieces, moveHistory, false)

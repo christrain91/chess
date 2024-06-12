@@ -1,8 +1,8 @@
-import { Piece, Move, Rank } from '../../../types';
+import { Piece, MoveWithoutNotation, Rank } from '../../../types';
 import { convertFileToNumber, convertNumberToFile } from '../../file';
 
-export function calculateLegalKnightMoves(knight: Piece, pieces: Piece[]): Move[] {
-  const moves: Move[] = []
+export function calculateLegalKnightMoves(knight: Piece, pieces: Piece[]): MoveWithoutNotation[] {
+  const moves: MoveWithoutNotation[] = []
   const fileAsNumber = convertFileToNumber(knight.square.file)
   const rank = knight.square.rank
 
@@ -22,7 +22,7 @@ export function calculateLegalKnightMoves(knight: Piece, pieces: Piece[]): Move[
     const piece = pieces.find(p => p.square.file === file && p.square.rank === possibleMove.rank)
 
     if (possibleMove.rank >= 1 && possibleMove.rank <= 8 && possibleMove.file >= 1 && possibleMove.file <= 8) {
-      const newMove: Move = {
+      const newMove: MoveWithoutNotation = {
         piece: knight,
         to: { file, rank: possibleMove.rank as Rank },
         from: knight.square
